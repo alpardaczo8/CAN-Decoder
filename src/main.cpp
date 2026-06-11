@@ -1,7 +1,11 @@
 #include <iostream>
 
+#include "can_decoder/DbcParser.hpp"
+
 int main()
 {
-    std::cout << "Hello world\n";
+    DbcParser parser("files/sample.dbc");
+    parser.parse();
+    parser.displayMessages();
     return 0;
 }

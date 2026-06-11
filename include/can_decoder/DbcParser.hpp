@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include <iostream>
+
 struct DbcSignal {
     std::string signalName;
     std::string unit; //optional
@@ -13,6 +15,7 @@ struct DbcSignal {
     uint8_t startBit;
     uint8_t length;
     bool isBigEndian;
+    bool isSigned;
 };
 
 struct DbcMessage {
@@ -24,9 +27,10 @@ struct DbcMessage {
 class DbcParser 
 {
 public:
-    DbcParser (std::string filePath);
+    explicit DbcParser (const std::string& filePath);
     bool parse();
     const DbcMessage* findMessage(uint32_t id) const;
+    void displayMessages();
 private:
     std::string m_filePath;
     std::unordered_map<uint32_t, DbcMessage> m_messages;

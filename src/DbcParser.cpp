@@ -11,7 +11,19 @@ bool DbcParser::parse()
 {
     std::string line;
     std::ifstream DbcFile(m_filePath);
+
+    // Check if file exists
+    if (!DbcFile.is_open())
+    {
+        std::cout << "Error: Dbc file is not found!\n";
+        return false; 
+    }
+
     std::optional<DbcMessage> currentMessage;
+    auto flushMessage = [&](){
+        if (currentMessage.has_value())
+            m_messages[currentMessage->messageId] = *currentMessage;
+    };
 
     while (std::getline(DbcFile, line)) {
         std::istringstream ss(line);
@@ -22,27 +34,30 @@ bool DbcParser::parse()
         {
             uint32_t rawId = 0;
             std::string messageName;
-            uint8_t length;
-            std::string receiver;
+            uint32_t dlc;
+            std::string sender;
 
             // check if we already read a DbcMessage before:
             // if yes, then store that message
             if (currentMessage.has_value())
             {
-                m_messages[currentMessage->messageId] = *currentMessage;
+                flushMessage();
             }
             // creating a new message
             currentMessage = DbcMessage{};
 
-            ss >> rawId >> messageName >> length >> receiver;
+            ss >> rawId >> messageName >> dlc >> sender;
             // removing ':' from name
-            messageName.pop_back();
-            // masking to the real CAN ID
+            if (!messageName.empty() && messageName.back() == ':')
+                messageName.pop_back();
+            // The DBC ID adds adds 3 extra bits for 29 bit CAN IDs to serve as an 'extended ID' flag
             uint32_t canId = rawId & 0x7FFFFFFF;
 
             // setting the message name and id
             currentMessage->messageId = canId;
             currentMessage->messageName = messageName;
+            currentMessage->sender = sender;
+            currentMessage->dlc = static_cast<uint8_t>(dlc);
         }
         else if (token == "SG_")
         {
@@ -50,7 +65,11 @@ bool DbcParser::parse()
             std::string bitInfo, colon;
 
             ss >> signal.signalName >> colon;
-
+            // checking for multiplexer
+            if (colon != ":")
+            {
+                ss >> colon;
+            }
             // extracting startBit, length and endianess
             ss >> bitInfo;
             std::istringstream bitSs(bitInfo); // bitInfo = "startBit|length@Endiannes(+/-)"
@@ -87,7 +106,7 @@ bool DbcParser::parse()
     }
     if (currentMessage.has_value())
     {
-        m_messages[currentMessage->messageId] = *currentMessage;
+        flushMessage();
     }
     return true;
 }

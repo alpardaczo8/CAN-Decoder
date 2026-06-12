@@ -5,22 +5,23 @@
 #include <unordered_map>
 #include <vector>
 
-#include <iostream>
-
 struct DbcSignal {
     std::string signalName;
     std::string unit; //optional
     double scale;
     double offset;
-    uint8_t startBit;
-    uint8_t length;
+    uint32_t startBit;
+    uint32_t length;
     bool isBigEndian;
     bool isSigned;
+    std::unordered_map<int32_t, std::string> valueTable; // to be handled
 };
 
 struct DbcMessage {
     std::string messageName;
+    std::string sender;
     uint32_t messageId;
+    uint8_t dlc;
     std::vector<DbcSignal> signals;
 };
 

@@ -11,7 +11,7 @@ TEST(DbcParserTest, FindDbcMessageByIdSuccessful) {
 }
 
 TEST(DbcParserTest, FindDbcMessageByIdFailed) {
-    DbcParser parser("files/sample.dbc");
+    DbcParser parser(std::string(TEST_FILES_DIR) + "/sample.dbc");
     parser.parse();
 
     const DbcMessage* message;

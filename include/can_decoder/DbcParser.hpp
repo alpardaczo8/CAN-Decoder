@@ -31,7 +31,7 @@ public:
     explicit DbcParser (const std::string& filePath);
     bool parse();
     const DbcMessage* findMessage(uint32_t id) const;
-    void displayMessages();
+    void displayMessages() const;
 private:
     std::string m_filePath;
     std::unordered_map<uint32_t, DbcMessage> m_messages;

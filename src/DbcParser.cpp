@@ -121,7 +121,7 @@ const DbcMessage* DbcParser::findMessage(uint32_t id) const
     return &it->second;
 }
 
-void DbcParser::displayMessages() 
+void DbcParser::displayMessages() const
 {
     
     for (const auto&[id, message] : m_messages)

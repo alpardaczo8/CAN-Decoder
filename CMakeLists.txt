@@ -12,6 +12,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # CanDecoder Library
 add_library(CANDecoderLib
     src/DbcParser.cpp
+    src/LogParser.cpp
 )
 
 target_include_directories(CANDecoderLib PUBLIC

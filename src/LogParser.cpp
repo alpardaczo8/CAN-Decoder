@@ -1,4 +1,5 @@
 #include "can_decoder/LogParser.hpp"
+#include "can_decoder/Compatibilty.hpp"
 
 #include <utility>
 #include <fstream>
@@ -31,22 +32,31 @@ bool LogParser::parse()
         std::string timeStamp;
         sstreamLine >> timeStamp;
         std::string_view timeStampView(timeStamp.data() + 1, timeStamp.size() - 2);
-        std::cout << timeStampView << "\n";
         double ts;
-        auto [ptr, ec] = std::from_chars(
-            timeStampView.data(),
-            timeStampView.data() + timeStampView.size(),
-            ts
-        );
+        #ifdef HAS_FROM_CHARS_DOUBLE
+            auto [ptr, ec] = std::from_chars(
+                timeStampView.data(),
+                timeStampView.data() + timeStampView.size(),
+                ts
+            );
 
-        if (ec == std::errc{})
-        {
-            canFrame.timeStamp = ts;
-        } else {
-            std::cout << "Error during formatting timestamp from string_view to double!\n";
-            return false; 
-        }
-
+            if (ec == std::errc{})
+            {
+                canFrame.timeStamp = ts;
+            } else {
+                std::cout << "Error parsing timestamp!\n";
+                return false; 
+            }
+        #else
+            try {
+                canFrame.timeStamp = std::stod(std::string(timeStampView));
+                std::cout << "Timestamp: " << canFrame.timeStamp << "\n";
+            }
+            catch (const std::exception& e) {
+                std::cout << "Error parsing timestamp: " << e.what() << "\n";
+                return false;
+            }
+        #endif
         std::string iface, frameStr;
         sstreamLine >> iface >> frameStr;
 

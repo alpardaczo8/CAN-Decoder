@@ -5,9 +5,9 @@
 
 int main()
 {
-    // DbcParser parser("files/sample.dbc");
-    // parser.parse();
-    // parser.displayMessages();
+    DbcParser parser("files/sample.dbc");
+    parser.parse();
+    parser.displayMessages();
     LogParser logParser("files/sample.log", "signals.out");
     logParser.parse();
     return 0;

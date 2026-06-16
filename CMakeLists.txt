@@ -13,6 +13,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_library(CANDecoderLib
     src/DbcParser.cpp
     src/LogParser.cpp
+    src/SignalDecoder.cpp
 )
 
 target_include_directories(CANDecoderLib PUBLIC

@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <string>
 
+#include <can_decoder/DbcParser.hpp>
+
 struct CanFrame
 {
     double timeStamp;

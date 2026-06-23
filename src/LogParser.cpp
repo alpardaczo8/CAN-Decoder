@@ -10,7 +10,7 @@
 
 
 LogParser::LogParser(std::string logPath, std::string outputPath) :
-    m_logPath(std::move(logPath)), m_outputPath(std::move(m_outputPath)) { }
+    m_logPath(std::move(logPath)), m_outputPath(std::move(outputPath)) { }
 
 bool LogParser::parse() 
 {

@@ -1,9 +1,10 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
 #include <can_decoder/DbcParser.hpp>
+#include <can_decoder/SignalDecoder.hpp>
 
 struct CanFrame
 {
@@ -20,4 +21,5 @@ public:
 private:
     std::string m_logPath;
     std::string m_outputPath;
+    SignalDecoder m_decoder;
 };

@@ -7,7 +7,7 @@
 class SignalDecoder 
 {
 public:
-    double decode(const uint8_t *payload, const DbcParser& dbcParser);
+    double decode(const uint8_t *payload, const DbcSignal& signal) const;
 private:
     uint64_t extractRawBigEndian(const uint8_t *payload, const DbcSignal& signal) const;
     uint64_t extractRawLittleEndian(const uint8_t *payload, const DbcSignal& signal) const;

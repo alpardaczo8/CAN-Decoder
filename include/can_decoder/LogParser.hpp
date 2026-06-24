@@ -17,7 +17,7 @@ struct CanFrame
 class LogParser {
 public:
     LogParser(std::string logPath, std::string outputPath);
-    bool parse();
+    bool parse(const DbcParser& parser);
 private:
     std::string m_logPath;
     std::string m_outputPath;

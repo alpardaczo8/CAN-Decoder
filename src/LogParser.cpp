@@ -1,5 +1,6 @@
 #include "can_decoder/LogParser.hpp"
 #include "can_decoder/Compatibilty.hpp"
+#include "can_decoder/DbcParser.hpp"
 
 #include <utility>
 #include <fstream>
@@ -12,7 +13,7 @@
 LogParser::LogParser(std::string logPath, std::string outputPath) :
     m_logPath(std::move(logPath)), m_outputPath(std::move(outputPath)) { }
 
-bool LogParser::parse() 
+bool LogParser::parse(const DbcParser& parser) 
 {
     std::ifstream inputFile(m_logPath);
     std::ofstream outputFile(m_outputPath);
@@ -61,11 +62,43 @@ bool LogParser::parse()
         sstreamLine >> iface >> frameStr;
 
         std::istringstream frameSstream(frameStr);
-        std::string CanId, payload;
-        std::getline(frameSstream, CanId, '#');
-        frameSstream >> payload;
-        std::cout << "CanID = " << CanId << "\n";
-        std::cout << "Payload: " << payload << "\n";
+        std::string CanIdString, payloadString;
+        std::getline(frameSstream, CanIdString, '#');
+        frameSstream >> payloadString;
+        canFrame.canID = static_cast<uint32_t>(std::stoul(CanIdString, nullptr, 16));
+        auto message = parser.findMessage(canFrame.canID);
+        if (message != nullptr)
+        {
+            // Store the payload in a uint8 array
+            #ifdef HAS_FROM_CHARS_DOUBLE
+            canFrame.dlc = CanIdString.size() / 2;
+            for (int i = 0; i < canFrame.dlc; i++)
+            {
+                const char* start = payloadString.data() + 2 * i;
+                uint8_t value = 0;
+                std::from_chars(start, start + 2, value, 16);
+                canFrame.payload[i] = value;
+            }
+            #else
+            canFrame.dlc = CanIdString.size() / 2;
+            for (int i = 0; i < canFrame.dlc; i++)
+            {
+                canFrame.payload[i] = static_cast<uint8_t>(std::stoul(payloadString.substr(i * 2, 2), nullptr, 16));
+            }
+            #endif
+            // Decode the signal values and print into the output file
+            for (const DbcSignal& signal : message->signals)
+            {
+                double signalValue = m_decoder.decode(canFrame.payload, signal);
+                outputFile << canFrame.timeStamp << ","
+                            << message->messageName << ","
+                            << signal.signalName << ","
+                            << signalValue << ","
+                            << signal.unit << "\n";
+            }
+        } else {
+            std::cout << "Signal not found!\n";
+        }
     }
     return true;
 }

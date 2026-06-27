@@ -71,7 +71,7 @@ bool LogParser::parse(const DbcParser& parser)
         {
             // Store the payload in a uint8 array
             #ifdef HAS_FROM_CHARS_DOUBLE
-            canFrame.dlc = CanIdString.size() / 2;
+            canFrame.dlc = payloadString.size() / 2;
             for (int i = 0; i < canFrame.dlc; i++)
             {
                 const char* start = payloadString.data() + 2 * i;
@@ -80,7 +80,7 @@ bool LogParser::parse(const DbcParser& parser)
                 canFrame.payload[i] = value;
             }
             #else
-            canFrame.dlc = CanIdString.size() / 2;
+            canFrame.dlc = payloadString.size() / 2;
             for (int i = 0; i < canFrame.dlc; i++)
             {
                 canFrame.payload[i] = static_cast<uint8_t>(std::stoul(payloadString.substr(i * 2, 2), nullptr, 16));
